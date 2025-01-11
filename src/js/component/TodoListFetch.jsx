@@ -10,18 +10,21 @@ export const ToDoListFetch = () => {
     const [ labelEdit, setLabelEdit ] = useState('');
     const [ completedEdit, setCompletedEdit ] = useState()
 
-    const handleSubmitAdd = (event) => {
+    const handleSubmitAdd = async (event) => {
         event.preventDefault();
+        if (!newTask.trim()) return;
+
         const dataToSend = {
-             label: task, 
-             is_done: false
-        }
+             label: newTask, 
+             is_done: false,
+        };
         const uri = `${baseURL}/todos/${user}`
         const options = {
             method: 'POST' ,
             headers: {
                 "Content-Type" : "application/json"
-            };
+            },
+
             body: JSON.stringify(dataToSend)
         };
         const response = await fetch(uri, options);
@@ -52,6 +55,7 @@ export const ToDoListFetch = () => {
 
     const handleEdit = (taskEdit) => {
         setIsEdit(true);
+        setEditTask(taskEdit);
         setLabelEdit(taskEdit.label);
         setCompletedEdit(taskEdit.is_done);
 
@@ -76,14 +80,14 @@ export const ToDoListFetch = () => {
         event.preventDefault();
         const dataToSend = {
             label: labelEdit,
-            is_done: completedEdit
+            is_done: completedEdit,
         };
         const uri = `${baseURL}/todos/${editTask.id}`
         const options = {
             method: 'PUT',
             headers: {
                 "Content-Type": "application/json"
-            };
+            },
             body: JSON.stringify(dataToSend)
         };
         const response = await fetch(uri, options);
@@ -95,7 +99,13 @@ export const ToDoListFetch = () => {
         setIsEdit(false);
         setEditTask({});
         setLabelEdit('');
-        setCompletedEdit(null);
+        setCompletedEdit(false);
+    };
+
+    const handleKeyPress = (event) => {
+        if (event.key === 'Enter') {
+            handleSubmitAdd(event);
+        }
     };
 
     return (
@@ -105,57 +115,76 @@ export const ToDoListFetch = () => {
             <form onSubmit={handleSubmitEdit}>
                
                 <div className="text-start mb-3">
-                    <label htmlFor="exampleInputPassword1" className="form-label">Edit Task</label>
-                    <input type="text" className="form-control" id="exampleInputPassword1">
+                    <label htmlFor="editTask" className="form-label">Edit Task</label>
+                    <input type="text" className="form-control" 
+                    onChange={(event) => setLabelEdit(event.target.value)}/>
                 </div>
                 <div className="text-start mb-3 form-check">
-                    <input type="checkbox" className="form-check-input" id="exampleCheck1" 
-                    checked={completedEdit} onChange={(event) => { setCompletedEdit(event.target.checked)}}/>
-                        <label className="form-check-label" htmlFor="exampleCheck1">Check me out</label>
+                    <input type="checkbox" className="form-check-input" 
+                    checked={completedEdit} onChange={(event) => setCompletedEdit(event.target.checked)}/>
+                        <label className="form-check-label">Completed</label>
                 </div>
                 <button type="submit" className="btn btn-primary mb-2">Submit</button>
-                <button type="reset" className="btn btn-secondary">Submit</button>
+                <button type="reset" className="btn btn-secondary"
+                onClick={() => setIsEdit(false)}>
+                    Cancel</button>
             </form>
 
             :
+
             <form onSubmit={handleSubmitAdd}>
                 <div className="text-start mb-3">
-                    <label hmtlhtmlFor="exampleInputPassword1" className="form-label">New Task</label>
-                    <input type="text" className="form-control" id="exampleInputPassword1"
-                        value={labelEdit} onChange={(event) => setLabelEdit(event.target.value)} />
+                    <label hmtlhtmlFor="exampleTask" className="form-label">New Task</label>
+                    <input type="text" className="form-control" id="exampleTask"
+                        value={newTask} onChange={(event) => setNewTask(event.target.value)}
+                        onKeyPress={handleKeyPress} />
                 </div>
+                <button type="submit" className="btn btn-primary">Add Task</button>
             </form>
 
-            };
+            }
             <h2 className="text-primary text-center mt-5">List</h2>
             <ul className="text-start list-group">
-                {todos.map((item, i) => <li key={item.id} className="list-group-item hidden-icon d-flex justify-content-between">
+                {todos.map((item, i) => (
+                <li key={item.id} 
+                className="list-group-item hidden-icon d-flex justify-content-between">
                     <div>
-                    {item.isDone ? 
-                    <i className="fa-regular fa-thumbs-up text-success me-2"></i>
+                    {item.isDone ? (
+                    <i className="fa-regular fa-thumbs-up text-success me-2"></i> )
                     :
-                    <i className="fa-solid fa-circle-xmark text-danger me-2"></i>
-                     }
+                    (<i className="fa-solid fa-circle-xmark text-danger me-2"></i>
+                     )}
                     {item.label}
                     </div>
                     <div>
                         <span
-                        onClick={() => handleEdit(item)}>
-                            <i className="fa-solid fa-pen-to-square text-primary me-2"></i>
+                        onClick={() => handleEdit(item)}
+                        className="fa-solid fa-pen-to-square text-primary me-2"
+                        style={{ cursor : 'pointer'}}>
+                            🖉
                         </span>    
 
                         <span
-                        onClick={() => handleDelete(item.id)}>
-                            <i className="fa-solid fa-trash text-danger"></i>
+                        onClick={() => handleDelete(item.id)}
+                        className="fa-solid fa-trash text-danger"
+                        style={{ cursor : 'pointer'}}>
+                            X
                         </span>
                     </div>
-                </li>)};
-                <li className="list-group-item text-end">{todos.length == 0 ? "No newTasks, please add a new one" : todos.length + "newTasks"}</li>
+                </li>))}
+                <li className="list-group-item text-end">
+                    {todos.length === 0 ? 
+                    "No newTasks, please add a new one" 
+                    : 
+                    `${todos.length} task${todos.length > 1 ? 's' : ''}`}
+                </li>
             </ul>
         </div>
     )
     
-}
+};
+
+
 
                     
 
