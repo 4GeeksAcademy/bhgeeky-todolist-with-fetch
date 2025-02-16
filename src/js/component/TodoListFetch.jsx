@@ -74,6 +74,7 @@ export const ToDoListFetch = () => {
         };
         const data = await response.json();
         setTodos(data.todos);
+        
     };
 
     const handleSubmitEdit = async (event) => {
@@ -107,6 +108,10 @@ export const ToDoListFetch = () => {
             handleSubmitAdd(event);
         }
     };
+    
+    useEffect(() => {
+        getTodos()
+    }, [])
 
     return (
         <div className="container my-5">
@@ -117,15 +122,15 @@ export const ToDoListFetch = () => {
                 <div className="text-start mb-3">
                     <label htmlFor="editTask" className="form-label">Edit Task</label>
                     <input type="text" className="form-control" 
-                    onChange={(event) => setLabelEdit(event.target.value)}/>
+                    value={labelEdit} onChange={(event) => { setLabelEdit(event.target.value)}}/>
                 </div>
                 <div className="text-start mb-3 form-check">
                     <input type="checkbox" className="form-check-input" 
-                    checked={completedEdit} onChange={(event) => setCompletedEdit(event.target.checked)}/>
+                    checked={completedEdit} onChange={(event) => { setCompletedEdit(event.target.checked)}}/>
                         <label className="form-check-label">Completed</label>
                 </div>
                 <button type="submit" className="btn btn-primary mb-2">Submit</button>
-                <button type="reset" className="btn btn-secondary"
+                <button type="reset" className="btn btn-secondary mb-2 mr-2"
                 onClick={() => setIsEdit(false)}>
                     Cancel</button>
             </form>
@@ -161,22 +166,22 @@ export const ToDoListFetch = () => {
                         onClick={() => handleEdit(item)}
                         className="fa-solid fa-pen-to-square text-primary me-2"
                         style={{ cursor : 'pointer'}}>
-                            🖉
+                            
                         </span>    
 
                         <span
                         onClick={() => handleDelete(item.id)}
                         className="fa-solid fa-trash text-danger"
                         style={{ cursor : 'pointer'}}>
-                            X
+                            
                         </span>
                     </div>
                 </li>))}
                 <li className="list-group-item text-end">
-                    {todos.length === 0 ? 
+                    {todos.length == 0 ? 
                     "No newTasks, please add a new one" 
                     : 
-                    `${todos.length} task${todos.length > 1 ? 's' : ''}`}
+                    todos.length + 'tasks'}
                 </li>
             </ul>
         </div>
